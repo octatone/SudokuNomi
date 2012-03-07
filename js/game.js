@@ -13,7 +13,7 @@ var Settings = {
 var Game = {
     difficulties: {test_solved: 1, easy: 20, medium: 40, hard: 60, expert: 70},
     
-    grid: {}, user_values: [], game_values: [],
+    grid: {}, user_values: [], game_values: [], time_elapsed: '',
     
     start: function(){
 	this.grid = CU.Sudoku.generate();
@@ -29,9 +29,14 @@ var Game = {
 	    Display.loadUserValues();
 	}
 	$('.ending').fadeOut(function(){$(this).remove()});
+	Timer.start(function(str){
+		Game.time_elapsed = str;
+		Display.timer(str);
+	    });
     },
 
     solved: function(){
+	Timer.stop();
 	Display.end();
     },
     
@@ -143,7 +148,21 @@ var Display = {
     end: function(){
 	var dialog = $(document.createElement('div')).addClass('ending').hide();
 	var heading = $(document.createElement('h2')).html('Congradulations!');
-	$('body').append(dialog.append(heading).fadeIn());
+	var text = $(document.createElement('p')).html('You solved the puzzle in ' + Game.time_elapsed);
+	dialog.append(heading);
+	dialog.append(text);
+	var tweet = $(document.createElement('p'));
+        var link = $(document.createElement('a'));
+	link.attr('href', 
+		  'http://twitter.com/home?status=I+finished+a+'+Settings.difficulty+'+SudokuNomi+puzzle+in+'+encodeURI(Game.time_elapsed)+'++Try+and+beat+my+time+at+http%3A%2F%2Fsudokunomi.com');
+	link.text('Tweet your time!');
+	dialog.append(tweet.append(link));
+
+	$('body').append(dialog.fadeIn());
+    },
+
+    timer: function(str){
+	$('#timer').text(str);
     },
     
     entryDialog: function(cell){
@@ -360,5 +379,42 @@ var Util = {
     /* http://stackoverflow.com/a/1830844/933653 */
     isNumeric: function(n){
 	return !isNaN(parseFloat(n)) && isFinite(n);
+    }
+}
+
+var Timer = {
+    start_time: null,
+    id: null,
+    callback: null,
+    
+    msToDuration: function(dur){
+	var dur_s = dur / 1000;
+	var hours = Math.floor(dur_s / 3600);
+	var minutes = Math.floor((dur_s % 3600) / 60);
+	var seconds = Math.floor((dur_s % 3600) % 60);
+        
+	var str = '';
+	str += (hours > 0) ? hours + ':' : '0:';
+	str += (minutes > 0) ? (minutes < 10 ? '0' + minutes + ':' : minutes + ':') : '00:';
+	str += (seconds > 0) ? (seconds < 10 ? '0' + seconds : seconds) : '00';
+        
+	return str;
+    },
+    
+    start: function(callback){
+	this.stop();
+	this.callback = callback;
+	this.start_time = new Date();// - 3540000; test hour roll over
+	this.id = setInterval(Timer.run, 1000);
+    },
+    stop: function(){
+	if(this.id){
+	    clearInterval(this.id);
+	}
+    },
+    
+    run: function(){
+	var now = new Date();
+	Timer.callback(Timer.msToDuration(now - Timer.start_time));
     }
 }

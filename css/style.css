@@ -67,13 +67,15 @@ h1 {
     width: 400px;
     margin: 0 auto;
     position: relative;
-    top: -450px;
+    top: -550px;
     background: green;
     border-radius: 10px;
     box-shadow: 0 0 10px #000;
     color: white;
 }
-
+.ending a {
+    color: white;
+}
 /* input dialog */
 .input-dialog, .input-input{
     padding: 0;
