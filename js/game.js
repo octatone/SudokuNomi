@@ -147,7 +147,7 @@ var Display = {
     
     end: function(){
 	var dialog = $(document.createElement('div')).addClass('ending').hide();
-	var heading = $(document.createElement('h2')).html('Congradulations!');
+	var heading = $(document.createElement('h2')).html('Congratulations!');
 	var text = $(document.createElement('p')).html('You solved the puzzle in ' + Game.time_elapsed);
 	dialog.append(heading);
 	dialog.append(text);
