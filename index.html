@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>SudokuNomi - Sudoku Only - Play sudoku for free online!</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+  <script type="text/javascript" src="js/json2.js"></script>
+  <script type="text/javascript" src="js/jstorage.min.js"></script>
+  <script type="text/javascript" src="js/sudoku.js"></script>
+  <script type="text/javascript" src="js/game.js"></script>
+  <link rel="stylesheet" type="text/css" href="css/normalize.css">
+  <link rel="stylesheet" type="text/css" href="css/style.css">
+  <link rel="shortcut icon" href="favicon.ico">
+</head>
+<body>
+<div id="header">
+  <h1>SudokuNomi</h1>
+</div>
+<div id="options-wrap">
+  <div>
+    <label for="opt-difficulty">
+      Difficulty:
+      <select id="opt-difficulty">
+	<option value="easy">Easy</option>
+	<option value="medium" selected>Medium</option>
+	<option value="hard">Hard</option>
+	<option value="expert">インポッシブル</option>
+      </select>
+    </label>
+    <label for="opt-showhints">
+      <input id="opt-showhints" type="checkbox"/>
+      Show Hints
+    </label>
+  </div>
+</div>
+<div id="game">
+<noscript>SudokuNomi requires Javascript to function.</noscript>
+</div>
+<div id="actions-wrap">
+  <button id="opt-newpuzzle">New Puzzle</button>
+  <button id="opt-printpuzzle">Print</button>
+</div>
+<div id="footer">
+  <p>Keyboard shortcuts: arrow keys, 0-9, enter</p>
+  <h3>How to play Sudoku (数独, すうどく)</h3>
+  <p>The object of the game is to complete the 9x9 grid so that each row, column, and 3x3 sub grid contain the digits 1-9 once only.</p>
+</div>
+</body>
+</html>

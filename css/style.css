@@ -1,0 +1,125 @@
+body {
+    background: url(../img/tile.jpg);
+    text-align: center; /* suck it */
+}
+#game {
+    padding: 10px;
+}
+table,tr,td {
+    margin:0;
+    padding:0;
+}
+p {
+    max-width: 450px;
+    margin: 1em auto;
+}
+h1 {
+    margin-bottom: .2em;
+}
+#game table {
+    background: #FFF;
+    margin: 0 auto;
+    box-shadow: 0 0 8px #666;
+}
+.cell {
+    color: #B8860B;
+    text-align: center;
+    font-size: 24px;
+    width: 48px !important;
+    height: 48px !important;
+    border: 1px solid lightgray;
+}
+.cell:not(.game-value){
+    cursor: pointer;
+}
+.cell:not(.game-value):hover {
+    background: #EEE;
+}
+.first-row {
+    border-top: 2px solid #000;
+}
+.first-col {
+    border-left: 2px solid #000;
+}
+.mini-right {
+    border-right: 2px solid #000;
+}
+.mini-bottom {
+    border-bottom: 2px solid #000;
+}
+
+/* individual cells */
+.cell-selected {
+    background: lightBlue;
+}
+.game-value {
+    font-weight: bold;
+    cursor: default;
+    color: #000;
+}
+.conflict {
+    color: red;
+}
+
+/* ending dialog */
+.ending {
+    border: 1px solid black;
+    width: 400px;
+    margin: 0 auto;
+    position: relative;
+    top: -450px;
+    background: green;
+    border-radius: 10px;
+    box-shadow: 0 0 10px #000;
+    color: white;
+}
+
+/* input dialog */
+.input-dialog, .input-input{
+    padding: 0;
+    margin: 0;
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+}
+
+.input-dialog {
+    position: absolute;
+    background: white;
+    border: 1px solid blue;
+    box-shadow: 0 0 10px #000;
+    opacity: 0.8;
+}
+.input-input {
+    border: none;
+    outline: none;
+    text-align: center;
+    font-size: 24px;
+    line-height: 48px; /* fucking ie */
+}
+
+/* options */
+#options-wrap *:not(div) {
+    margin: 10px;
+}
+#options-wrap label {
+    border: 1px solid gray;
+    padding: 8px;
+    border-radius: 8px;
+    background: #CAE1FF;
+}
+
+button {
+    padding: 5px 15px !important;
+    background: #CAE1FF;
+    border-radius: 5px;
+}
+
+@media print {
+    body {
+	background: #FFF;
+    }
+    #options-wrap, #actions-wrap {
+	display: none;
+    }
+}
