@@ -11,7 +11,7 @@ var Settings = {
 };
 
 var Game = {
-    difficulties: {test_solved: 1, easy: 20, medium: 40, hard: 60, expert: 70},
+    difficulties: {test_solved: 1, easy: 20, medium: 40, hard: 55, expert: 64},
     
     grid: {}, user_values: [], game_values: [], time_elapsed: '', s_elapsed: 0,
     
@@ -28,7 +28,8 @@ var Game = {
 	    /* insert and display stored user values */
 	    Display.loadUserValues();
 	}
-	$('.ending').fadeOut(function(){$(this).remove()});
+	$('.ending').fadeOut(function(){$(this).remove();});
+	$('#timer').html('0:00:00');
 	Timer.start(function(arr){
 		Display.timer(arr[0]);
 		Game.time_elapsed = arr[0];
@@ -96,14 +97,14 @@ var Game = {
 	for(var row = 0; row < 9; row++)
 	    {
 		var cols = [];
-		for(var col = 0; col < 9; col++)
+		for(var col = 0; col < 9; col++){
 		    cols[col] = 0;
-		
+		}		
 		rows[row] = cols;
 	    }
 	return rows;
     }
-}
+};
 
 var Display = {
     /* show game table */
@@ -152,13 +153,13 @@ var Display = {
     end: function(){
 	var dialog = $(document.createElement('div')).addClass('ending').hide();
 	var heading = $(document.createElement('h2')).html('Congratulations!');
-	var text = $(document.createElement('p')).html('You solved the puzzle in ' + Game.time_elapsed);
+	var text = $(document.createElement('p')).html('You solved this puzzle in ' + Game.time_elapsed);
 	dialog.append(heading);
 	dialog.append(text);
 	var tweet = $(document.createElement('p'));
-        var link = $(document.createElement('a'));
+        var link = $(document.createElement('a')).addClass('button');
 	link.attr('href', 
-		  'http://twitter.com/home?status=I+finished+a+'+Settings.difficulty+'+SudokuNomi+puzzle+in+'+encodeURI(Game.time_elapsed)+'++Try+and+beat+my+time+at+http%3A%2F%2Fsudokunomi.com');
+		  'http://twitter.com/home?status=I+finished+a+'+Settings.difficulty+'+sudoku+puzzle+in+'+encodeURI(Game.time_elapsed)+'++Try+and+beat+my+time+at+http%3A%2F%2Fsudokunomi.com');
 	link.text('Tweet your time!');
 	dialog.append(tweet.append(link));
 
@@ -189,12 +190,12 @@ var Display = {
 	$('.input-input').on('keydown',function(e){
 		var keyCode = e.keyCode || e.which;
 		var $selected = $('.cell-selected:not(.game-value)');
-		var value = String.fromCharCode(keyCode);
 		var pos = Display.getCellPosition($selected.get(0));
-		if(keyCode > 47 && keyCode < 58){
+		if((keyCode > 47 && keyCode < 58) || (keyCode > 93 && keyCode < 106)){
 		    if($selected.length > 0){
+			var value = String.fromCharCode((keyCode > 93 ? keyCode - 48 : keyCode));
 			Game.grid.setValue(pos[0],pos[1], value);
-			$this.html((value == 0 ? '' : value));
+			$this.html((value === 0 ? '' : value));
 		    }
 		}else{
 		    Game.grid.setValue(pos[0],pos[1], 0);
@@ -207,7 +208,7 @@ var Display = {
     },
     
     killDialog: function(){
-	$('.input-dialog').fadeOut(200, function(){$(this).remove()});
+	$('.input-dialog').fadeOut(200, function(){$(this).remove();});
     },
 
     getCellPosition: function(cell){
@@ -223,6 +224,7 @@ var Display = {
                 }
             }
         }
+	return false;
     },
     
     getCell: function(col,row){
@@ -237,6 +239,7 @@ var Display = {
                 }
             }
 	}
+	return false;
     },
 
     moveSelect: function(direction){
@@ -333,13 +336,13 @@ var Binds = {
 			return false; /* do not pass enter/return through */
 		    }
 		    /* enter cell values from the keyboard */
-		    if(keyCode > 47 && keyCode < 58){
+		    if((keyCode > 47 && keyCode < 58) || (keyCode > 93 && keyCode < 106)){
 			var $selected = $('.cell-selected:not(.game-value)');
 			if($selected.length > 0){
-			    var value = String.fromCharCode(keyCode);
+			    var value = String.fromCharCode((keyCode > 93 ? keyCode - 48 : keyCode));
 			    var pos = Display.getCellPosition($selected.get(0));
 			    Game.grid.setValue(pos[0],pos[1], value);			    
-			    $cell.html((value == 0 ? '' : value));
+			    $cell.html((value === 0 ? '' : value));
 			    Display.findConflicts();
 			    Game.saveState();
                         }
@@ -410,7 +413,6 @@ var Timer = {
     },
     
     start: function(callback, offset){
-	console.log(offset);
 	this.stop();
 	this.callback = callback;
 	this.start_time = new Date();// - 3540000; test hour roll over

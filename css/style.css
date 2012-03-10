@@ -71,13 +71,10 @@ h1 {
     width: 400px;
     margin: 0 auto;
     position: relative;
-    top: -550px;
+    top: -615px;
     background: green;
     border-radius: 10px;
     box-shadow: 0 0 10px #000;
-    color: white;
-}
-.ending a {
     color: white;
 }
 /* input dialog */
@@ -115,14 +112,44 @@ h1 {
     background: #CAE1FF;
 }
 
-button {
-    padding: 5px 15px !important;
-    background: #CAE1FF;
+.button {
+    color: #006400;    
+    font-size: 100%;
+    text-decoration: none;
+    padding: 10px 15px !important;
+    margin: 0 5px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
     border-radius: 5px;
+    border: 1px solid gray;
+    cursor: pointer;
+    /* cross b gradient */
+    background: #ccffcc; /* Old browsers */
+    background: -moz-linear-gradient(top, #ccffcc 0%, #3fff3f 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ccffcc), color-stop(100%,#3fff3f)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top, #ccffcc 0%,#3fff3f 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top, #ccffcc 0%,#3fff3f 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top, #ccffcc 0%,#3fff3f 100%); /* IE10+ */
+    background: linear-gradient(top, #ccffcc 0%,#3fff3f 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ccffcc', endColorstr='#3fff3f',GradientType=0 ); /* IE6-9 */        
+}
+.button:hover {
+    color: #000;
+    background: #7FFF7F;
+    -webkit-box-shadow: 0 0 2px #666;
+    -moz-box-shadow: 0 0 2px #666;
+    box-shadow: 0 0 2px #666;
+}
+.button:active {
+    color: #006400;
+    border: 1px solid #7FFF7F;
+    -webkit-box-shadow: inset 1px 1px 2px #444;
+    -moz-box-shadow: inset 1px 1px 2px #444;
+    box-shadow: inset 1px 1px 2px #444;
 }
 
 @media print {
-    body {
+    * {
 	background: #FFF;
     }
     #options-wrap, #actions-wrap, #timer, #sc-info  {
