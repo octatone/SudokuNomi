@@ -116,6 +116,7 @@ var Display = {
             var tr = $(document.createElement('tr')).addClass('game-row');
             for(var c = 0; c < 9; c++){
                 var td = $(document.createElement('td')).addClass('cell');
+		/* add additional classes */
                 if(Game.grid.rows[r][c] !== 0){
                     td.html(Game.grid.rows[r][c]).addClass('game-value');
                 }
@@ -131,12 +132,42 @@ var Display = {
                 if((r+1) % 3 === 0){
                     td.addClass('mini-bottom');
                 }
+		td.append(this.pencilMarks());
                 tr.append(td);
             }
             table.append(tr);
         }
         $game.append(table);
         Binds.tableBinds();
+    },
+
+    /**
+     * Return 3x3 grid for use by game table for storing/showing pencil marks
+     */
+    pencilMarks: function(){
+	var table = $(document.createElement('table')).addClass('pencil-marks');
+        for(var r = 0; r < 3; r++){
+            var tr = $(document.createElement('tr')).addClass('pm-row');
+            for(var c = 0; c < 3; c++){
+		var td = $(document.createElement('td')).addClass('pm-cell').html('1');
+                /* add additional classes */
+                if(r === 0){
+                    td.addClass('pm-top');
+		}
+                if(c === 0){
+                    td.addClass('pm-left');
+                }
+                if(c === 2){
+                    td.addClass('pm-right');
+                }
+                if(r === 2){
+                    td.addClass('pm-bottom');
+                }
+                tr.append(td);
+            }
+            table.append(tr);
+        }
+	return table;
     },
 
     loadUserValues: function(){
