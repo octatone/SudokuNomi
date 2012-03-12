@@ -233,7 +233,7 @@ var Display = {
 		    }
 		}else{
 		    Game.grid.setValue(pos[0],pos[1], 0);
-		    $this.empty();
+		    $this.find('.value').empty();
 		}
 		Display.killDialog();
 		Display.findConflicts();
