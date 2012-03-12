@@ -52,7 +52,7 @@ var Game = {
             var $cells = $row.children('.cell');
             for(var c = 0; c < 9; c++){
                 $cell = $($cells[c]);
-		var value = parseInt($cell.text());
+		var value = parseInt($cell.find('.value').text());
                 if($cell.is('.game-value')){
 		    this.game_values[r][c] = value;
                 }else if(value > 0){
