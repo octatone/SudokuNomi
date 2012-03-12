@@ -116,9 +116,11 @@ var Display = {
             var tr = $(document.createElement('tr')).addClass('game-row');
             for(var c = 0; c < 9; c++){
                 var td = $(document.createElement('td')).addClass('cell');
+		var div = $(document.createElement('div')).addClass('value');
 		/* add additional classes */
                 if(Game.grid.rows[r][c] !== 0){
-                    td.html(Game.grid.rows[r][c]).addClass('game-value');
+		    div.html(Game.grid.rows[r][c]);
+                    td.addClass('game-value');
                 }
                 if(r === 0){
                     td.addClass('first-row');
@@ -132,6 +134,7 @@ var Display = {
                 if((r+1) % 3 === 0){
                     td.addClass('mini-bottom');
                 }
+		td.append(div);
 		td.append(this.pencilMarks());
                 tr.append(td);
             }
@@ -174,10 +177,10 @@ var Display = {
 	for(var r = 0; r < 9; r ++){
 	    for(var c = 0; c < 9; c++){
 		if(Game.user_values[r][c] > 0){
-		    $(this.getCell(c,r)).html(Game.user_values[r][c]);
+		    $(this.getCell(c,r)).find('.value').html(Game.user_values[r][c]);
 		    Game.grid.rows[r][c] = Game.user_values[r][c];
 		}
-	    } 
+	    }
 	}
     },
     
@@ -226,7 +229,7 @@ var Display = {
 		    if($selected.length > 0){
 			var value = String.fromCharCode((keyCode > 93 ? keyCode - 48 : keyCode));
 			Game.grid.setValue(pos[0],pos[1], value);
-			$this.html((value === 0 ? '' : value));
+			$this.find('.value').html((value === 0 ? '' : value));
 		    }
 		}else{
 		    Game.grid.setValue(pos[0],pos[1], 0);
@@ -372,8 +375,8 @@ var Binds = {
 			if($selected.length > 0){
 			    var value = String.fromCharCode((keyCode > 93 ? keyCode - 48 : keyCode));
 			    var pos = Display.getCellPosition($selected.get(0));
-			    Game.grid.setValue(pos[0],pos[1], value);			    
-			    $cell.html((value === 0 ? '' : value));
+			    Game.grid.setValue(pos[0],pos[1], value);
+			    $selected.find('.value').html((value === 0 ? '' : value));
 			    Display.findConflicts();
 			    Game.saveState();
                         }
