@@ -587,13 +587,15 @@ var Util = {
   }
 };
 
-var Timer = {
+var Timer = (function () {
 
-  'start_time': null,
-  'id': null,
-  'callback': null,
-    
-  'msToDuration': function (dur) {
+  var start_time = null;
+  var id = null;
+  var timerCallback = null;
+  var self;
+  
+
+  function msToDuration (dur) {
 
     var dur_s = dur / 1000;
     var hours = Math.floor(dur_s / 3600);
@@ -606,28 +608,36 @@ var Timer = {
     str += (seconds > 0) ? (seconds < 10 ? '0' + seconds : seconds) : '00';
           
     return str;
-  },
-    
-  'start': function (callback, offset){
+  }
+      
+  function start (callback, offset) {
 
-    this.stop();
-    this.callback = callback;
-    this.start_time = new Date();// - 3540000; test hour roll over
-    this.start_time = this.start_time - offset;
-    this.id = setInterval(Timer.run, 1000);
-  },
+    stop();
+    timerCallback = callback;
+    start_time = new Date();
+    start_time = start_time - offset;
+    id = setInterval(run, 1000);
+  }
 
-  'stop': function (){
+  function stop () {
 
-    if (this.id) {
+    if (id) {
 
-      clearInterval(this.id);
+      clearInterval(id);
     }
-  },
-    
-  'run': function () {
+  }
+      
+  function run () {
 
     var now = new Date();
-    Timer.callback([(Timer.msToDuration(now - Timer.start_time)), (now - Timer.start_time)]);
+    if (timerCallback) {
+
+      timerCallback([(msToDuration(now - start_time)), (now - start_time)]);
+    }
   }
-};
+  return {
+
+    'start': start,
+    'stop': stop
+  };
+})();
