@@ -4,6 +4,8 @@
  * requires sudoku.js, jstorage
  */
 
+var game;
+
 // Main
 $(document).ready(function () {
 
@@ -19,39 +21,39 @@ var Settings = {
 };
 
 // The Game
-var Game = {
+var Game = (function () {
 
-  'difficulties': {
+  var difficulties = {
 
     'test_solved': 1,
     'easy': 20,
     'medium': 40,
     'hard': 55,
     'expert': 64
-  },
+  };
     
-  'grid': {},
-  'user_values': [],
-  'game_values': [],
-  'time_elapsed': '',
-  's_elapsed': 0,
-  'timer': null,
+  var grid = {};
+  var user_values = [];
+  var game_values = [];
+  var time_elapsed = '';
+  var s_elapsed = 0;
+  var timer = null;
 
   // Start the game
-  'start': function () {
+  function start () {
 
     // Initialize a full internal sudoku grid
-    this.grid = CU.Sudoku.generate();
+    grid = CU.Sudoku.generate();
 
     // Load previous game, or create a new one
-    var loaded = this.loadState();
+    var loaded = loadState();
     if (loaded) {
       // load previous values into memory
-      this.grid.rows = this.game_values;
+      grid.rows = game_values;
     }
     else {
       // or create a new game by culling full sudoku grid
-      CU.Sudoku.cull(this.grid, this.difficulties[Settings.difficulty]);
+      CU.Sudoku.cull(grid, difficulties[Settings.difficulty]);
     }
 
     // Setup display
@@ -66,42 +68,43 @@ var Game = {
     Display.hideEnding();
 
     // Start time elapsed display
-    this.startTimer();
-  },
+    startTimer();
+  }
 
-  'startTimer': function () {
+  function startTimer () {
 
     // reset timer display
     Display.resetTimer();
     
-    this.timer = new Timer();
-    this.timer.start(function (arr) {
+    timer = new Timer();
+    timer.start(function (arr) {
 
       Display.timer(arr[0]);
-      Game.time_elapsed = arr[0];
-      Game.s_elapsed = Math.floor(arr[1]/1000);
-      $.jStorage.set('s_elapsed', JSON.stringify(Game.s_elapsed));
-    }, Game.s_elapsed * 1000);
-  },
+      time_elapsed = arr[0];
+      s_elapsed = Math.floor(arr[1]/1000);
+      $.jStorage.set('s_elapsed', JSON.stringify(s_elapsed));
+    }, s_elapsed * 1000);
+  }
 
-  'stopTimer': function () {
+  function stopTimer () {
 
-    if (this.timer) {
+    if (timer) {
 
-      this.timer.stop();
+      timer.stop();
     }
-  },
+  }
 
-  'solved': function () {
+  function solved () {
 
-    this.stopTimer();
+    stopTimer();
     Display.showEnding();
-  },
+  }
     
-  'saveState': function () {
+  function saveState () {
 
-    this.user_values = this.fillRows();
-    this.game_values = this.fillRows();
+    user_values = fillRows();
+    game_values = fillRows();
+
     var $rows = $('.game-row');
 
     for (var r = 0; r < 9; r++) {
@@ -115,29 +118,29 @@ var Game = {
         var value = parseInt($cell.text(), 10);
         if ($cell.is('.game-value')) {
           
-          this.game_values[r][c] = value;
+          game_values[r][c] = value;
         }
         else if (value > 0) {
 
-          this.user_values[r][c] = value;
+          user_values[r][c] = value;
         }
       }
     }
 	
-    $.jStorage.set('game_values', JSON.stringify(this.game_values));
-    $.jStorage.set('user_values', JSON.stringify(this.user_values));
-  },
+    $.jStorage.set('game_values', JSON.stringify(game_values));
+    $.jStorage.set('user_values', JSON.stringify(user_values));
+  }
 
-  'loadState': function () {
+  function loadState () {
 
     var _game_values = JSON.parse($.jStorage.get('game_values')) || [];
     var _user_values = JSON.parse($.jStorage.get('user_values')) || [];
     
-    this.s_elapsed = 0;
+    s_elapsed = 0;
     
     if (_user_values.length > 0) {
 
-      this.user_values = _user_values;
+      user_values = _user_values;
     }
     else {
 
@@ -146,29 +149,27 @@ var Game = {
 
     if (_game_values.length > 0) {
       
-      this.game_values = _game_values;
+      game_values = _game_values;
     }
     else {
 
       return false;
     }
 
-    this.s_elapsed = JSON.parse($.jStorage.get('s_elapsed')) || 0;
+    s_elapsed = JSON.parse($.jStorage.get('s_elapsed')) || 0;
     return true;
-  },
+  }
 
-  'flushState': function () {
+  function flushState () {
 
     $.jStorage.set('game_values', JSON.stringify([]));
     $.jStorage.set('user_values', JSON.stringify([]));
     $.jStorage.set('s_elapsed', '0');
-  },
+  }
 
-  /**
-  * return zero-filled grid array
-  * used by saveState
-  **/
-  'fillRows': function () {
+  // return zero-filled grid array
+  // used by saveState
+  function fillRows () {
 	 
     var rows = [];
 
@@ -185,7 +186,33 @@ var Game = {
 
     return rows;
   }
-};
+
+  return {
+
+    // get access
+    'getUserValues': function () {
+
+      return user_values;
+    },
+    'getTimeElapsed': function () {
+
+      return time_elapsed;
+    },
+
+    // public methods
+    'flushState': flushState,
+    'saveState': saveState,
+    'solved': solved,
+    'start': start,
+    'stopTimer': stopTimer,
+
+    // return internal sudoku grid object
+    'getGrid': function () {
+
+      return grid;
+    }
+  };
+}());
 
 var Display = {
 
@@ -204,9 +231,9 @@ var Display = {
       for (var c = 0; c < 9; c++) {
         
         var $td = $(document.createElement('td')).addClass('cell');
-        if (Game.grid.rows[r][c] !== 0) {
+        if (Game.getGrid().rows[r][c] !== 0) {
 
-          $td.html(Game.grid.rows[r][c]).addClass('game-value');
+          $td.html(Game.getGrid().rows[r][c]).addClass('game-value');
         }
         
         if (r === 0) {
@@ -245,10 +272,10 @@ var Display = {
 
       for (var c = 0; c < 9; c++) {
 
-        if (Game.user_values[r][c] > 0) {
+        if (Game.getUserValues()[r][c] > 0) {
 
-          $(this.getCell(c,r)).html(Game.user_values[r][c]);
-          Game.grid.rows[r][c] = Game.user_values[r][c];
+          $(this.getCell(c,r)).html(Game.getUserValues()[r][c]);
+          Game.getGrid().rows[r][c] = Game.getUserValues()[r][c];
         }
       }
     }
@@ -258,7 +285,7 @@ var Display = {
 
     var dialog = $(document.createElement('div')).addClass('ending').hide();
     var heading = $(document.createElement('h2')).html('Congratulations!');
-    var text = $(document.createElement('p')).html('You solved this puzzle in ' + Game.time_elapsed);
+    var text = $(document.createElement('p')).html('You solved this puzzle in ' + Game.getTimeElapsed());
 
     dialog.append(heading);
     dialog.append(text);
@@ -266,7 +293,7 @@ var Display = {
     var tweet = $(document.createElement('p'));
     var link = $(document.createElement('a')).addClass('button');
 
-    link.attr('href', 'http://twitter.com/home?status=I+finished+a+'+Settings.difficulty+'+sudoku+puzzle+in+'+encodeURI(Game.time_elapsed)+'++Try+and+beat+my+time+at+http%3A%2F%2Fsudokunomi.com');
+    link.attr('href', 'http://twitter.com/home?status=I+finished+a+'+Settings.difficulty+'+sudoku+puzzle+in+'+encodeURI(Game.getTimeElapsed())+'++Try+and+beat+my+time+at+http%3A%2F%2Fsudokunomi.com');
     link.text('Tweet your time!');
     dialog.append(tweet.append(link));
 
@@ -326,14 +353,14 @@ var Display = {
         if($selected.length > 0){
 
           var value = String.fromCharCode((keyCode > 93 ? keyCode - 48 : keyCode));
-          Game.grid.setValue(pos[0],pos[1], value);
+          Game.getGrid().setValue(pos[0],pos[1], value);
           $this.html((value === 0 ? '' : value));
         }
 
       }
       else {
 
-        Game.grid.setValue(pos[0],pos[1], 0);
+        Game.getGrid().setValue(pos[0],pos[1], 0);
         $this.empty();
       }
 
@@ -472,7 +499,7 @@ var Display = {
         
         for (var c = 0; c < 9; c++) {
 
-          if (!Game.grid.cellValid(c, r)) {
+          if (!Game.getGrid().cellValid(c, r)) {
 
             conflicts = true;
             var $cell = $($cells[c]);
@@ -483,7 +510,7 @@ var Display = {
     }
     
     // check if solved
-    if (Game.grid.gridSolved()) {
+    if (Game.getGrid().gridSolved()) {
 
       Game.solved();
     }
@@ -556,7 +583,7 @@ var Binds = {
 
             var value = String.fromCharCode((keyCode > 93 ? keyCode - 48 : keyCode));
             var pos = Display.getCellPosition($selected.get(0));
-            Game.grid.setValue(pos[0],pos[1], value);
+            Game.getGrid().setValue(pos[0],pos[1], value);
             $cell.html((value === 0 ? '' : value));
             Display.findConflicts();
             Game.saveState();
