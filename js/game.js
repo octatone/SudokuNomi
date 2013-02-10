@@ -4,20 +4,21 @@
  * requires sudoku.js, jstorage
  */
 
-/* run */
+// Main
 $(document).ready(function () {
 
   Game.start();
   Binds.optionBinds();
 });
 
-/* defaults settings */
+// Default settings
 var Settings = {
 
   difficulty: 'medium',
   show_conflicts: false
 };
 
+// The Game
 var Game = {
 
   'difficulties': {
@@ -34,6 +35,7 @@ var Game = {
   'game_values': [],
   'time_elapsed': '',
   's_elapsed': 0,
+  'timer': null,
 
   // Start the game
   'start': function () {
@@ -44,32 +46,36 @@ var Game = {
     // Load previous game, or create a new one
     var loaded = this.loadState();
     if (loaded) {
-      // load previous
+      // load previous values into memory
       this.grid.rows = this.game_values;
     }
     else {
-      // create a new game by culling full sudoku grid
+      // or create a new game by culling full sudoku grid
       CU.Sudoku.cull(this.grid, this.difficulties[Settings.difficulty]);
     }
 
+    // Setup display
     Display.gameTable();
-
     if (loaded) {
 
-      // insert and display stored user values
+      // display stored user values
       Display.loadUserValues();
     }
 
-    // remove ending screen
-    $('.ending').fadeOut(function () {
+    // remove ending screen if visible
+    Display.hideEnding();
 
-      $(this).remove();
-    });
+    // Start time elapsed display
+    this.startTimer();
+  },
+
+  'startTimer': function () {
 
     // reset timer display
-    $('#timer').html('0:00:00');
-	
-    Timer.start(function (arr) {
+    Display.resetTimer();
+    
+    this.timer = new Timer();
+    this.timer.start(function (arr) {
 
       Display.timer(arr[0]);
       Game.time_elapsed = arr[0];
@@ -78,10 +84,18 @@ var Game = {
     }, Game.s_elapsed * 1000);
   },
 
+  'stopTimer': function () {
+
+    if (this.timer) {
+
+      this.timer.stop();
+    }
+  },
+
   'solved': function () {
 
-    Timer.stop();
-    Display.end();
+    this.stopTimer();
+    Display.showEnding();
   },
     
   'saveState': function () {
@@ -240,7 +254,7 @@ var Display = {
     }
   },
     
-  'end': function () {
+  'showEnding': function () {
 
     var dialog = $(document.createElement('div')).addClass('ending').hide();
     var heading = $(document.createElement('h2')).html('Congratulations!');
@@ -259,9 +273,22 @@ var Display = {
     $('body').append(dialog.fadeIn());
   },
 
+  'hideEnding': function () {
+
+    $('.ending').fadeOut(function () {
+
+      $(this).remove();
+    });
+  },
+
   'timer': function (str) {
 
     $('#timer').text(str);
+  },
+
+  'resetTimer': function () {
+
+    this.timer('0:00:00');
   },
     
   'entryDialog': function (cell) {
@@ -319,6 +346,7 @@ var Display = {
   'killDialog': function () {
 
     $('.input-dialog').fadeOut(200, function () {
+
       $(this).remove();
     });
   },
@@ -383,8 +411,7 @@ var Display = {
       position = [0,0];
     }
 
-    /* kill any open dialog */
-
+    // kill any open dialog
     this.killDialog();
     switch (direction) {
 
@@ -421,22 +448,22 @@ var Display = {
         break;
     }
 
-    /* remove prev selection */
+    // remove prev selection
     $('.cell-selected').removeClass('cell-selected');
 
-    /* apply new selection */
+    // apply new selection
     $(this.getCell(position[0], position[1])).addClass('cell-selected');
   },
 
-  /* highlight /all/ conflicting cells */
+  // highlight /all/ conflicting cells
   'findConflicts': function () {
 
-    /* remove previous */
+    // remove previous
     $('.conflict').removeClass('conflict');
 
     if (Settings.show_conflicts) {
 
-      /* find conflicts */
+      // find conflicts
       var $rows = $('.game-row');
       for (var r = 0; r < 9; r++) {
 
@@ -455,7 +482,7 @@ var Display = {
       }
     }
     
-    /* check if solved */
+    // check if solved
     if (Game.grid.gridSolved()) {
 
       Game.solved();
@@ -465,7 +492,7 @@ var Display = {
     
 var Binds = {
   
-  /* binds for after table draw */
+  // binds for after table draw
   'tableBinds': function () {
 
     var $selected;
@@ -516,10 +543,11 @@ var Binds = {
 
               Display.entryDialog($selected.get(0));
             }
-            return false; /* do not pass enter/return through */
+            // do not pass enter/return through
+            return false;
         }
 
-        /* enter cell values from the keyboard */
+        // enter cell values from the keyboard
         if ((keyCode > 47 && keyCode < 58) || (keyCode > 93 && keyCode < 106)) {
 
           $selected = $('.cell-selected:not(.game-value)');
@@ -542,14 +570,14 @@ var Binds = {
 
     $('#opt-newpuzzle').on('click', function () {
 
-      Timer.stop();
+      Game.stopTimer();
       Game.flushState();
       Game.start();
     });
 
     $('#opt-difficulty').on('change', function () {
 
-      Timer.stop();
+      Game.stopTimer();
       Settings.difficulty = $(this).val();
       Game.flushState();
       Game.start();
@@ -568,7 +596,7 @@ var Binds = {
     });
   },
 
-  /* empty cell click */
+  // empty cell click
   'cellClick': function (elem) {
 
     $('.cell').removeClass('cell-selected');
@@ -577,24 +605,13 @@ var Binds = {
   }
 };
 
-/* utils */
-var Util = {
-
-  /* http://stackoverflow.com/a/1830844/933653 */
-  'isNumeric': function (n) {
-
-    return !isNaN(parseFloat(n)) && isFinite(n);
-  }
-};
-
-var Timer = (function () {
+var Timer = function () {
 
   var start_time = null;
   var id = null;
   var timerCallback = null;
   var self;
   
-
   function msToDuration (dur) {
 
     var dur_s = dur / 1000;
@@ -613,6 +630,7 @@ var Timer = (function () {
   function start (callback, offset) {
 
     stop();
+
     timerCallback = callback;
     start_time = new Date();
     start_time = start_time - offset;
@@ -635,9 +653,23 @@ var Timer = (function () {
       timerCallback([(msToDuration(now - start_time)), (now - start_time)]);
     }
   }
+
   return {
 
     'start': start,
     'stop': stop
+  };
+};
+
+// general utilities
+var Util = (function () {
+
+  return {
+
+    /* http://stackoverflow.com/a/1830844/933653 */
+    'isNumeric': function (n) {
+
+      return !isNaN(parseFloat(n)) && isFinite(n);
+    }
   };
 })();
